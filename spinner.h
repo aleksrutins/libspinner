@@ -230,16 +230,16 @@ typedef struct
     char* last_output;
     uint8_t active;
     uint8_t reversed;
-} spinner_t;
+} LibspinnerSpinner;
 
 /*
  * spinner_new creates a new pointer to a spinner_t
  * struct and sets sane defaults for immediate use.
  */
-spinner_t*
-spinner_new(const int id)
+LibspinnerSpinner*
+libspinner_spinner_new(const int id)
 {
-    spinner_t *s = malloc(sizeof(spinner_t));
+    LibspinnerSpinner *s = malloc(sizeof(LibspinnerSpinner));
     s->char_set_id = id;
     s->output_dst = stdout;
     s->prefix = "";
@@ -254,7 +254,7 @@ spinner_new(const int id)
  * spinner_t pointer.
  */
 void
-spinner_free(spinner_t *s)
+libspinner_spinner_free(LibspinnerSpinner *s)
 {
     if (s) {
         free(s);
@@ -268,7 +268,7 @@ spinner_free(spinner_t *s)
  * current state.
  */
 static uint8_t
-spinner_state(spinner_t *s)
+libspinner_spinner_state(LibspinnerSpinner *s)
 {
     uint8_t state;
     pthread_mutex_lock(&s->mu);
@@ -283,12 +283,11 @@ spinner_state(spinner_t *s)
  * printing the character to screen.
  */
 static void*
-spin(void *arg)
+libspinner_spin(void *arg)
 {
-    spinner_t *s = (spinner_t*)arg;
-    if (s->reversed == 1) {
-    }
-    for (int i = 0;; i++) {
+    LibspinnerSpinner *s = (LibspinnerSpinner*)arg;
+    int i = 0;
+    while(true) {
         // check if we're reached an index with no string. If
         // we have, reset the counter and start again.
         if (!char_sets[s->char_set_id][i]) {
@@ -302,6 +301,7 @@ spin(void *arg)
         fflush(stdout);
         printf("%c[2K", 27);
         usleep(s->delay);
+        i++;
     }
     return NULL;
 }
@@ -310,7 +310,7 @@ spin(void *arg)
  * spinner_start starts the spinner.
  */
 void
-spinner_start(spinner_t *s)
+libspinner_spinner_start(LibspinnerSpinner *s)
 {
     if (s->active > 0) {
         return;
@@ -319,7 +319,7 @@ spinner_start(spinner_t *s)
     CURSOR_STATE(0);
     pthread_t spin_thread;
     pthread_mutex_unlock(&s->mu);
-    if (pthread_create(&spin_thread, NULL, spin, s)) {
+    if (pthread_create(&spin_thread, NULL, libspinner_spin, s)) {
         fprintf(stderr, "error creating thread\n");
         return;
     }
@@ -330,7 +330,7 @@ spinner_start(spinner_t *s)
  * spinner_stop stops the spinner.
  */
 void
-spinner_stop(spinner_t *s)
+libspinner_spinner_stop(LibspinnerSpinner *s)
 {
     pthread_mutex_lock(&s->mu);
     s->active = 0;
@@ -345,10 +345,10 @@ spinner_stop(spinner_t *s)
  * spinner_restart will restart the spinner.
  */
 void
-spinner_restart(spinner_t *s)
+libspinner_spinner_restart(LibspinnerSpinner *s)
 {
-    spinner_stop(s);
-    spinner_start(s);
+    libspinner_spinner_stop(s);
+    libspinner_spinner_start(s);
 }
 
 /*
@@ -356,7 +356,7 @@ spinner_restart(spinner_t *s)
  * set with the new given one.
  */
 void
-spinner_char_set_update(spinner_t *s, const int id)
+libspinner_spinner_char_set_update(LibspinnerSpinner *s, const int id)
 {
     pthread_mutex_lock(&s->mu);
     s->char_set_id = id;
@@ -368,7 +368,7 @@ spinner_char_set_update(spinner_t *s, const int id)
  * the spinner is spinning.
  */
 void
-spinner_update_speed(spinner_t *s, const uint64_t delay)
+libspinner_spinner_update_speed(LibspinnerSpinner *s, const uint64_t delay)
 {
     pthread_mutex_lock(&s->mu);
     s->delay = delay;
@@ -380,7 +380,7 @@ spinner_update_speed(spinner_t *s, const uint64_t delay)
  * write spinner output to.
  */
 void
-spinner_set_output_dest(spinner_t *s, FILE *fd)
+libspinner_spinner_set_output_dest(LibspinnerSpinner *s, FILE *fd)
 {
     pthread_mutex_lock(&s->mu);
     s->output_dst = fd;
@@ -391,7 +391,7 @@ spinner_set_output_dest(spinner_t *s, FILE *fd)
  * spinner_reverse reverses the direction of the spinner.
  */
 void
-spinner_reverse(spinner_t *s)
+libspinner_spinner_reverse(LibspinnerSpinner *s)
 {
     pthread_mutex_lock(&s->mu);
     if (s->reversed == 0) {
@@ -412,7 +412,7 @@ spinner_reverse(spinner_t *s)
         j++;
     }
     pthread_mutex_unlock(&s->mu);
-    spinner_restart(s);
+    libspinner_spinner_restart(s);
 }
 
 #endif

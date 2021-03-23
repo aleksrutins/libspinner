@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- This file was automatically generated from C sources - DO NOT EDIT!
+To affect the contents of this file, edit the original C definitions,
+and/or use gtk-doc annotations.  -->
+<repository version="1.2"
+            xmlns="http://www.gtk.org/introspection/core/1.0"
+            xmlns:c="http://www.gtk.org/introspection/c/1.0"
+            xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
+  <namespace name="Libspinner"
+             shared-library=""
+             c:identifier-prefixes="Libspinner"
+             c:symbol-prefixes="libspinner">
+    <record name="Spinner" c:type="LibspinnerSpinner">
+      <source-position filename="spinner.h" line="233"/>
+      <field name="char_set_id" writable="1">
+        <type name="guint8" c:type="uint8_t"/>
+      </field>
+      <field name="delay" writable="1">
+        <type name="guint64" c:type="uint64_t"/>
+      </field>
+      <field name="mu" introspectable="0" writable="1">
+        <type c:type="pthread_mutex_t"/>
+      </field>
+      <field name="output_dst" writable="1">
+        <type name="gpointer" c:type="FILE*"/>
+      </field>
+      <field name="prefix" writable="1">
+        <type name="utf8" c:type="char*"/>
+      </field>
+      <field name="suffix" writable="1">
+        <type name="utf8" c:type="char*"/>
+      </field>
+      <field name="final_msg" writable="1">
+        <type name="utf8" c:type="char*"/>
+      </field>
+      <field name="last_output" writable="1">
+        <type name="utf8" c:type="char*"/>
+      </field>
+      <field name="active" writable="1">
+        <type name="guint8" c:type="uint8_t"/>
+      </field>
+      <field name="reversed" writable="1">
+        <type name="guint8" c:type="uint8_t"/>
+      </field>
+    </record>
+  </namespace>
+</repository>
